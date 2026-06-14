@@ -12,6 +12,7 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,  // ← add this
     port: 5173,
     proxy: {
       '/exposure': 'http://localhost:3001',

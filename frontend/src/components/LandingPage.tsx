@@ -23,7 +23,7 @@ function LandingPage({ onStart }: LandingPageProps) {
         background: '#0C447C',
       }}
     >
-      <img src="/landing-page.png" alt="Calibrate" style={{ width: '60px', height: '60px', marginBottom: '1rem' }} />
+      <img src="/landing-page.png" alt="Calibrate" style={{ width: '60px', height: '60px', marginBottom: '1rem', zIndex: 999 }} />
       {/* Animated gradient orbs */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden',
@@ -32,7 +32,7 @@ function LandingPage({ onStart }: LandingPageProps) {
           position: 'absolute',
           width: '600px', height: '600px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(250,199,117,0.18) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(1, 141, 255, 0.61) 0%, transparent 70%)',
           top: '-10%', left: '-10%',
           animation: 'drift1 12s ease-in-out infinite alternate',
         }} />
@@ -40,7 +40,7 @@ function LandingPage({ onStart }: LandingPageProps) {
           position: 'absolute',
           width: '500px', height: '500px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(93,202,165,0.13) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(209, 209, 209, 0.14) 0%, transparent 70%)',
           bottom: '-10%', right: '-5%',
           animation: 'drift2 15s ease-in-out infinite alternate',
         }} />
@@ -48,9 +48,10 @@ function LandingPage({ onStart }: LandingPageProps) {
           position: 'absolute',
           width: '400px', height: '400px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(39, 0, 214, 0.35) 0%, transparent 70%)',
           top: '40%', left: '50%',
           animation: 'drift3 10s ease-in-out infinite alternate',
+          zIndex: -999
         }} />
       </div>
 
@@ -66,6 +67,7 @@ function LandingPage({ onStart }: LandingPageProps) {
           fontWeight: 600,
           marginBottom: '1rem',
           color: '#ffffff',
+          textShadow: '0 2px 20px rgba(0, 0, 0, 0.16)',
         }}>
           Calibrate
         </h1>
