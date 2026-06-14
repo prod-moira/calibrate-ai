@@ -6,6 +6,7 @@ interface LandingPageProps {
 
 function LandingPage({ onStart }: LandingPageProps) {
   return (
+    
     <div
       style={{
         display: 'flex',
@@ -22,6 +23,7 @@ function LandingPage({ onStart }: LandingPageProps) {
         background: '#0C447C',
       }}
     >
+      <img src="/public/landing-page.png" alt="Calibrate" style={{ width: '60px', height: '60px', marginBottom: '1rem' }} />
       {/* Animated gradient orbs */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden',

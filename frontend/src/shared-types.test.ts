@@ -73,7 +73,7 @@ describe('Shared types — importability from frontend', () => {
 
     const career: CareerPath = {
       title: 'UX Designer',
-      whatTheyDo: ['Research user needs', 'Design interfaces', 'Test prototypes'],
+      whatTheyDo: ['Research user needs', 'Design interfaces'],
       whyItFits: ['Your Creative dominance fits design roles.', 'Your People score shows user empathy.'],
       dayInLife: 'Mornings are spent in user interviews, afternoons in Figma.',
       skills: ['Figma', 'User research', 'Prototyping', 'Empathy mapping'],
