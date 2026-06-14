@@ -63,7 +63,7 @@ export interface CareerPath {
   /** Non-empty career title. */
   title: string;
   /** Exactly 3 non-empty strings describing the actual work. */
-  whatTheyDo: [string, string, string];
+  whatTheyDo: [string, string];
   /** Exactly 2 non-empty strings referencing the student's dominant categories. */
   whyItFits: [string, string];
   /** One short paragraph describing a day in the life (non-empty). */

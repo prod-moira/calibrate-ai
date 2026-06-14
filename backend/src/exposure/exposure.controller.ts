@@ -8,7 +8,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { DiscoveryResponse } from '@shared';
+// Local stand-in for missing shared types. Adjust if a shared types module is added.
+type DiscoveryResponse = any;
 
 import { DiscoverDto } from './discover.dto';
 import { ExposureService } from './exposure.service';
@@ -23,9 +24,10 @@ export class ExposureController {
   async discover(@Body() dto: DiscoverDto): Promise<DiscoveryResponse> {
     try {
       return await this.service.discover(dto.quizResult, dto.stabilityPriority);
-    } catch (err) {
-      if (err instanceof ServiceError) {
-        if (err.type === 'PROMPT_CONSTRUCTION_ERROR') {
+      } catch (err) {
+        if (err instanceof ServiceError) {
+          console.error('[discover] ServiceError:', err.type, err.message); // ← add this
+          if (err.type === 'PROMPT_CONSTRUCTION_ERROR') {
           throw new HttpException(
             'Internal server error.',
             HttpStatus.INTERNAL_SERVER_ERROR,

@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { AnswerCategory } from '@shared';
+import { AnswerCategory } from '../shared/types';
 
 export class AnswerCountsDto {
   @IsInt()

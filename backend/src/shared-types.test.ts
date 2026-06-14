@@ -12,7 +12,7 @@ import type {
   CareerPath,
   DiscoveryRequest,
   DiscoveryResponse,
-} from '../../shared/types';
+} from './shared/types';
 
 describe('Shared types — importability from backend', () => {
   it('AnswerCategory values are the expected literals', () => {

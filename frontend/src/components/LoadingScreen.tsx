@@ -9,22 +9,23 @@ function LoadingScreen() {
         justifyContent: 'center',
         height: '100dvh',
         flexDirection: 'column',
-        gap: '1rem',
-        background: '#0f0f13',
-        color: '#f0f0f0',
+        gap: '1.25rem',
+        background: '#0C447C',
+        color: '#ffffff',
+        fontFamily: "var(--font-sans)",
       }}
     >
       <div
         style={{
-          width: '2.5rem',
-          height: '2.5rem',
-          border: '3px solid #333',
-          borderTop: '3px solid #7c6fff',
+          width: '3rem',
+          height: '3rem',
+          border: '3px solid rgba(255, 255, 255, 0.15)',
+          borderTop: '3px solid #FAC775',
           borderRadius: '50%',
           animation: 'spin 0.8s linear infinite',
         }}
       />
-      <p>Generating your assessment…</p>
+      <p>Analysing your quiz patterns…</p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );

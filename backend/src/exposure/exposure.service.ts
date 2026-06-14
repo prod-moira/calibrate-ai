@@ -1,59 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-import { DiscoveryResponse, QuizResult } from '@shared';
+import { DiscoveryResponse, QuizResult } from '../shared/types';
 
 import { ServiceError } from './service-error';
 
 // ── System Prompt Template ────────────────────────────────────────────────────
 
-const SYSTEM_PROMPT_TEMPLATE = `You are a career exploration and self-assessment assistant for Filipino students aged 17–19.
+const SYSTEM_PROMPT_TEMPLATE = `Career assistant for Filipino students 17–19.
 
-The student has completed a 30-question quiz across 6 steps: Interests, Strengths, Work Style, Values, Future Vision, and Career Motivations. Each answer maps to one of four categories: Analytical, Creative, Leadership, or People-oriented.
+Input:
+- quizResult: 6 steps (Interests/Strengths/WorkStyle/Values/FutureVision/Motivations), each has dominantCategory (Analytical/Creative/Leadership/People) and answerCounts
+- stabilityPriority: 1–5 (1=passion, 3=balanced, 5=stable PH job market)
 
-You will receive:
-- quizResult: an array of 6 step summaries, each with a dominantCategory and answerCounts per category
-- stabilityPriority: an integer from 1–5 derived from Step 6 answers
+Return ONLY valid JSON, no markdown, no preamble:
+{
+  "summary": {
+    "profileType": "short label",
+    "tagline": "1 sentence",
+    "motivations": ["3 strings"],
+    "interests": ["4 strings"],
+    "strengths": [{"label":"","description":"1 sentence"} x5],
+    "growthAreas": ["4 strings"],
+    "environmentFits": ["4 strings"],
+    "environmentMismatch": "1 string",
+    "actionSteps": {"thisMonth":"","thisYear":"","longTerm":""},
+    "closingStatement": "1 sentence"
+  },
+  "careers": [
+    {
+      "title": "",
+      "whatTheyDo": ["2 strings"],
+      "whyItFits": ["2 strings citing dominant categories"],
+      "skills": ["3 strings"],
+      "tryItNow": "1 free activity",
+      "phContext": "1 PH sector sentence"
+    }
+  ]
+}
 
-stabilityPriority guide:
-- 1–2: prioritise careers that align deeply with passion, even if unconventional
-- 3: balance passion and financial viability equally
-- 4–5: favour careers with strong, stable demand in the Philippine job market
+Rules: 3 careers. 1 must be unexpected. No prestige bias. Cite quiz patterns in whyItFits. Be direct, no platitudes. All grounded in PH context.
 
-All careers must be grounded in the Philippine context: local industries, BPO, tech, creative, or emerging sectors.
-
-Return a single JSON object with two fields: "summary" and "careers". No preamble. No markdown fences.
-
-"summary" must be an AssessmentSummary object with:
-- profileType: a short label reflecting the dominant category pattern across all 6 steps
-- tagline: one sentence capturing the student's orientation
-- motivations: exactly 3 strings describing what drives this student
-- interests: exactly 4 strings describing their interest areas
-- strengths: exactly 5 objects, each with "label" (short name) and "description" (1 sentence)
-- growthAreas: exactly 4 strings describing areas to develop
-- environmentFits: exactly 4 strings describing work environments this student would thrive in
-- environmentMismatch: one string describing an environment they would struggle in
-- actionSteps: object with "thisMonth", "thisYear", and "longTerm" string fields (each 1–2 sentences)
-- closingStatement: one encouraging sentence grounded in their specific quiz pattern
-
-"careers" must be an array of exactly 3 CareerPath objects. Each must include:
-- title
-- whatTheyDo: exactly 3 bullet strings describing the actual work
-- whyItFits: exactly 2 bullet strings referencing the student's dominant categories and answer patterns
-- dayInLife: 1 short paragraph
-- skills: array of skill strings
-- tryItNow: 1 free, actionable activity
-- phContext: 1 sentence naming a specific Philippine industry sector (BPO, tech, creative, emerging, healthcare, education, or infrastructure)
-
-Rules:
-- Write for a 17–19 year old. Be direct, not preachy. No motivational platitudes. Max 3 sentences per descriptive field.
-- Include at least one career the student would never think to Google.
-- Never recommend a career just because it sounds impressive. Only recommend what genuinely fits the quiz pattern.
-- Each whyItFits bullet must explicitly reference the student's dominant Answer Categories or notable step patterns.
-- Cite at least one specific quiz attribute as the basis for each recommendation. Do not cite prestige.
-
-Quiz result: {{quizResult}}
-Stability priority: {{stabilityPriority}}`;
+quizResult: {{quizResult}}
+stabilityPriority: {{stabilityPriority}}`;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -123,48 +112,38 @@ export class ExposureService {
    *
    * On success, logs the response status and timestamp (Requirement 5.1).
    */
-  async callGemini(prompt: string): Promise<string> {
-    const apiKey = process.env.GEMINI_API_KEY ?? '';
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+async callGemini(prompt: string): Promise<string> {
+  const Groq = (await import('groq-sdk')).default;
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-    const TIMEOUT_MS = 10_000;
+  const TIMEOUT_MS = 30_000;
 
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => {
-        reject(
-          new ServiceError(
-            'GEMINI_TIMEOUT_ERROR',
-            'Gemini API did not respond within 10 seconds.',
-          ),
-        );
-      }, TIMEOUT_MS);
-    });
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      reject(new ServiceError('GEMINI_TIMEOUT_ERROR', 'Groq API did not respond within 30 seconds.'));
+    }, TIMEOUT_MS);
+  });
 
-    let rawText: string;
-    try {
-      const result = await Promise.race([
-        model.generateContent(prompt),
-        timeoutPromise,
-      ]);
+  let rawText: string;
+  try {
+    const result = await Promise.race([
+      groq.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+      }),
+      timeoutPromise,
+    ]);
 
-      rawText = result.response.text();
-    } catch (err) {
-      // Re-throw ServiceErrors (including GEMINI_TIMEOUT_ERROR) unchanged
-      if (err instanceof ServiceError) {
-        throw err;
-      }
-      // Wrap any SDK / network error as GEMINI_API_ERROR
-      throw new ServiceError(
-        'GEMINI_API_ERROR',
-        `Gemini API call failed: ${err instanceof Error ? err.message : String(err)}`,
-      );
-    }
-
-    console.log('[callGemini] status: success, timestamp:', new Date().toISOString());
-
-    return rawText;
+    rawText = result.choices[0].message.content ?? '';
+  } catch (err) {
+    if (err instanceof ServiceError) throw err;
+    throw new ServiceError('GEMINI_API_ERROR', `Groq API call failed: ${err instanceof Error ? err.message : String(err)}`);
   }
+
+  console.log('[callGroq] status: success, timestamp:', new Date().toISOString());
+  return rawText;
+}
 
   /**
    * Strips optional markdown fences from `raw`, parses it as JSON, validates
@@ -405,7 +384,7 @@ export class ExposureService {
     }
 
     // whatTheyDo: exactly 3 non-empty strings
-    if (!isNonEmptyStringArray(c['whatTheyDo'], 3)) {
+    if (!isNonEmptyStringArray(c['whatTheyDo'], 2)) {
       throw new ServiceError(
         'SCHEMA_VIOLATION',
         `careers[${index}].whatTheyDo must be an array of exactly 3 non-empty strings.`,
@@ -420,31 +399,15 @@ export class ExposureService {
       );
     }
 
-    // dayInLife
-    if (!isNonEmptyString(c['dayInLife'])) {
-      throw new ServiceError(
-        'SCHEMA_VIOLATION',
-        `careers[${index}].dayInLife must be a non-empty string.`,
-      );
-    }
+    // skills: exactly 3 non-empty strings
+  if (!isNonEmptyStringArray(c['skills'], 3)) {
+    throw new ServiceError(
+      'SCHEMA_VIOLATION',
+      `careers[${index}].skills must be an array of exactly 3 non-empty strings.`,
+    );
+  }
 
-    // skills: non-empty array of non-empty strings
-    if (!Array.isArray(c['skills']) || c['skills'].length === 0) {
-      throw new ServiceError(
-        'SCHEMA_VIOLATION',
-        `careers[${index}].skills must be a non-empty array.`,
-      );
-    }
-    for (let j = 0; j < (c['skills'] as unknown[]).length; j++) {
-      if (!isNonEmptyString((c['skills'] as unknown[])[j])) {
-        throw new ServiceError(
-          'SCHEMA_VIOLATION',
-          `careers[${index}].skills[${j}] must be a non-empty string.`,
-        );
-      }
-    }
-
-    // tryItNow
+// tryItNow
     if (!isNonEmptyString(c['tryItNow'])) {
       throw new ServiceError(
         'SCHEMA_VIOLATION',

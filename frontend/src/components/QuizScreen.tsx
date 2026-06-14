@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { AnswerCategory, DiscoveryResponse } from '@shared';
+import type { AnswerCategory, QuizResult } from '@shared';
 import { buildQuizResult } from '../utils/buildQuizResult';
 import { deriveStabilityPriority } from '../utils/deriveStabilityPriority';
-import useDiscover from '../hooks/useDiscover';
 import QuestionCard from './QuestionCard';
 import LoadingScreen from './LoadingScreen';
 
@@ -335,16 +334,17 @@ const STEP_LABELS = [
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface QuizScreenProps {
-  onDiscoverComplete: (response: DiscoveryResponse) => void;
+  discover: (quizResult: QuizResult, stabilityPriority: number) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  reset: () => void;
 }
 
-function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
+function QuizScreen({ discover, isLoading, error, reset }: QuizScreenProps) {
   // Flat 0–29 index across all 30 questions
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<(AnswerCategory | null)[]>(Array(30).fill(null));
   const [pendingAnswer, setPendingAnswer] = useState<AnswerCategory | null>(null);
-
-  const { discover, response, isLoading, error } = useDiscover();
 
   // Track whether we've already submitted (prevents double-calls on re-render)
   const submittedRef = useRef(false);
@@ -353,13 +353,6 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
   const stepIndex = Math.floor(currentIndex / 5);
   const questionInStep = currentIndex % 5;
   const currentQuestion = QUIZ_DATA[currentIndex];
-
-  // When response arrives, call onDiscoverComplete
-  useEffect(() => {
-    if (response !== null) {
-      onDiscoverComplete(response);
-    }
-  }, [response, onDiscoverComplete]);
 
   // Handle answer tap
   function handleAnswer(category: AnswerCategory) {
@@ -422,29 +415,23 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
           height: '100dvh',
           flexDirection: 'column',
           gap: '1rem',
-          background: '#0f0f13',
-          color: '#f0f0f0',
+          background: '#0C447C',
+          color: '#ffffff',
           padding: '2rem',
           textAlign: 'center',
+          fontFamily: 'var(--font-sans)',
         }}
       >
-        <p style={{ color: '#ff6b6b', maxWidth: '24rem' }}>{error}</p>
+        <p style={{ color: '#FAC775', maxWidth: '24rem', fontSize: '1.25rem', marginBottom: '1.5rem', fontFamily: 'var(--font-serif)' }}>{error}</p>
         <button
           onClick={() => {
+            reset();
             submittedRef.current = false;
             setCurrentIndex(0);
             setAnswers(Array(30).fill(null));
             setPendingAnswer(null);
           }}
-          style={{
-            padding: '0.75rem 1.5rem',
-            background: '#7c6fff',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '0.5rem',
-            cursor: 'pointer',
-            fontSize: '1rem',
-          }}
+          className="btn-primary"
         >
           Retake the quiz
         </button>
@@ -458,8 +445,9 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
         display: 'flex',
         flexDirection: 'column',
         height: '100dvh',
-        background: '#0f0f13',
-        color: '#f0f0f0',
+        background: '#0C447C',
+        color: '#ffffff',
+        fontFamily: 'var(--font-sans)',
       }}
     >
       {/* Header */}
@@ -467,7 +455,7 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
         style={{
           display: 'flex',
           alignItems: 'center',
-          padding: '1rem 1.25rem',
+          padding: '1.5rem 1.5rem 1rem',
           gap: '0.75rem',
         }}
       >
@@ -477,12 +465,13 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
           style={{
             background: 'none',
             border: 'none',
-            color: '#f0f0f0',
+            color: '#ffffff',
             cursor: currentIndex === 0 ? 'default' : 'pointer',
             opacity: currentIndex === 0 ? 0.3 : 1,
-            fontSize: '1.25rem',
+            fontSize: '1.5rem',
             padding: '0.25rem',
             lineHeight: 1,
+            transition: 'opacity 0.2s',
           }}
           disabled={currentIndex === 0}
         >
@@ -494,9 +483,10 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
             style={{
               margin: 0,
               fontSize: '0.75rem',
-              color: '#888',
+              color: 'var(--color-muted-text)',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
+              fontWeight: 600,
             }}
           >
             Step {stepIndex + 1} of 6 — {STEP_LABELS[stepIndex]}
@@ -504,9 +494,9 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
           {/* Progress bar */}
           <div
             style={{
-              marginTop: '0.375rem',
-              height: '3px',
-              background: '#222',
+              marginTop: '0.5rem',
+              height: '4px',
+              background: 'rgba(255, 255, 255, 0.15)',
               borderRadius: '2px',
             }}
           >
@@ -514,7 +504,7 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
               style={{
                 height: '100%',
                 width: `${((currentIndex + 1) / 30) * 100}%`,
-                background: '#7c6fff',
+                background: 'var(--color-primary)',
                 borderRadius: '2px',
                 transition: 'width 0.3s ease',
               }}
@@ -523,7 +513,7 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
         </div>
 
         <span
-          style={{ fontSize: '0.75rem', color: '#888', minWidth: '2.5rem', textAlign: 'right' }}
+          style={{ fontSize: '0.85rem', color: 'var(--color-muted-text)', minWidth: '3rem', textAlign: 'right', fontWeight: 600 }}
         >
           {currentIndex + 1}/30
         </span>
@@ -544,8 +534,8 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
         style={{
           display: 'flex',
           justifyContent: 'center',
-          gap: '0.5rem',
-          padding: '1rem',
+          gap: '0.625rem',
+          padding: '1.5rem',
         }}
       >
         {STEP_LABELS.map((label, i) => (
@@ -553,11 +543,12 @@ function QuizScreen({ onDiscoverComplete }: QuizScreenProps) {
             key={label}
             title={label}
             style={{
-              width: '0.5rem',
-              height: '0.5rem',
+              width: '0.625rem',
+              height: '0.625rem',
               borderRadius: '50%',
-              background: i === stepIndex ? '#7c6fff' : '#333',
-              transition: 'background 0.2s',
+              background: i === stepIndex ? 'var(--color-primary)' : 'rgba(255, 255, 255, 0.2)',
+              transition: 'background 0.2s, transform 0.2s',
+              transform: i === stepIndex ? 'scale(1.2)' : 'scale(1)',
             }}
           />
         ))}

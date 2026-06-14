@@ -18,10 +18,17 @@ function useDiscover(): {
   response: DiscoveryResponse | null;
   isLoading: boolean;
   error: string | null;
+  reset: () => void;
 } {
   const [response, setResponse] = useState<DiscoveryResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const reset = () => {
+    setResponse(null);
+    setError(null);
+    setIsLoading(false);
+  };
 
   const discover = async (
     quizResult: QuizResult,
@@ -54,7 +61,7 @@ function useDiscover(): {
     }
   };
 
-  return { discover, response, isLoading, error };
+  return { discover, response, isLoading, error, reset };
 }
 
 export default useDiscover;
