@@ -38,7 +38,8 @@ function useDiscover(): {
     setError(null);
 
     try {
-      const res = await fetch('/exposure/discover', {
+      const apiUrl = ((import.meta as any).env?.VITE_API_URL ?? '');
+      const res = await fetch(`${apiUrl}/exposure/discover`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ quizResult, stabilityPriority }),
