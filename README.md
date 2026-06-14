@@ -58,3 +58,4 @@ npm run dev
 - Expand career data with real Philippine salary ranges and demand trends
 - Allow students to explore careers beyond their top 3 matches
 - Add multilingual support (Filipino/Tagalog)
+- Add rate limiting to the API to prevent abuse and protect the AI quota
