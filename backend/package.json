@@ -1,0 +1,35 @@
+{
+  "name": "calibrate-backend",
+  "version": "0.0.1",
+  "description": "Calibrate NestJS backend",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@nestjs/common": "^10.4.15",
+    "@nestjs/core": "^10.4.15",
+    "@nestjs/platform-express": "^10.4.15",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.4.9",
+    "@nestjs/schematics": "^10.2.3",
+    "@nestjs/testing": "^10.4.15",
+    "@types/node": "^20.17.12",
+    "fast-check": "^3.23.2",
+    "typescript": "^5.7.3",
+    "unplugin-swc": "^1.5.1",
+    "vitest": "^2.1.9",
+    "@swc/core": "^1.10.7"
+  }
+}

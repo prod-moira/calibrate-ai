@@ -1,0 +1,15 @@
+{
+  "name": "calibrate-ai",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "test:backend": "npm run test --workspace=backend",
+    "test:frontend": "npm run test --workspace=frontend",
+    "test": "npm run test:backend && npm run test:frontend"
+  }
+}

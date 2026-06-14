@@ -1,0 +1,164 @@
+/* ============================================================
+   Summary Slides — CSS Entrance Animations
+   Each slide uses a unique @keyframes block and timing curve.
+   Requirement 6.3: no two slides share the same animation.
+   ============================================================ */
+
+/* ── Shared slide layout ─────────────────────────────────── */
+.slide-fade-up,
+.slide-scale-in,
+.slide-rotate-in,
+.slide-blur-in,
+.slide-slide-left,
+.slide-bounce-in,
+.slide-flip-in,
+.slide-zoom-in {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── 1. fade-up ──────────────────────────────────────────── */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-fade-up {
+  animation: fade-up 0.5s ease-out both;
+}
+
+/* ── 2. scale-in ─────────────────────────────────────────── */
+@keyframes scale-in {
+  from {
+    transform: scale(0.7);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.slide-scale-in {
+  animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── 3. rotate-in ────────────────────────────────────────── */
+@keyframes rotate-in {
+  from {
+    opacity: 0;
+    transform: rotateX(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}
+
+.slide-rotate-in {
+  animation: rotate-in 0.5s ease-in-out both;
+}
+
+/* ── 4. blur-in ──────────────────────────────────────────── */
+@keyframes blur-in {
+  from {
+    opacity: 0;
+    filter: blur(20px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.slide-blur-in {
+  animation: blur-in 0.5s ease both;
+}
+
+/* ── 5. slide-left ───────────────────────────────────────── */
+@keyframes slide-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.slide-slide-left {
+  animation: slide-left 0.5s ease-out both;
+}
+
+/* ── 6. bounce-in ────────────────────────────────────────── */
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  80% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.slide-bounce-in {
+  animation: bounce-in 0.6s ease both;
+}
+
+/* ── 7. flip-in ──────────────────────────────────────────── */
+@keyframes flip-in {
+  from {
+    opacity: 0;
+    transform: rotateY(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0deg);
+  }
+}
+
+.slide-flip-in {
+  animation: flip-in 0.5s ease-in-out both;
+}
+
+/* ── 8. zoom-in ──────────────────────────────────────────── */
+@keyframes zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.slide-zoom-in {
+  animation: zoom-in 0.5s ease-out both;
+}
+
+/* ── Reduced-motion accessibility ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .slide-fade-up,
+  .slide-scale-in,
+  .slide-rotate-in,
+  .slide-blur-in,
+  .slide-slide-left,
+  .slide-bounce-in,
+  .slide-flip-in,
+  .slide-zoom-in {
+    animation: none;
+  }
+}

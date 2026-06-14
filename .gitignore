@@ -1,0 +1,31 @@
+# Node
+**/node_modules/
+
+# Builds
+**/dist/
+**/build/
+
+# TS
+**/*.tsbuildinfo
+
+# Vite
+**/.vite/
+**/.vite-temp/
+
+# Kiro
+**/.kiro/
+
+# Environment
+**/.env
+**/.env.*
+
+# Logs
+**/*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,94 @@
+/* QuestionCard — full-screen question layout */
+
+.question-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  width: 100%;
+  padding: 2rem 1.5rem;
+  box-sizing: border-box;
+  background-color: #0f0f13;
+  color: #f0f0f0;
+}
+
+/* Question text */
+.question-card__question {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  text-align: center;
+  max-width: 640px;
+  margin: 0 0 2.5rem;
+  line-height: 1.4;
+}
+
+/* Options container */
+.question-card__options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  width: 100%;
+  max-width: 560px;
+}
+
+/* Option button */
+.question-card__option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background-color: #1a1a24;
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  color: #e0e0e0;
+  font-size: 1rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.question-card__option:hover:not([aria-pressed='true']) {
+  background-color: #23232f;
+  border-color: #444;
+}
+
+.question-card__option:focus-visible {
+  outline: 2px solid #7c6fff;
+  outline-offset: 2px;
+}
+
+/* Selected state */
+.question-card__option.selected,
+.question-card__option[aria-pressed='true'] {
+  background-color: #2e2b5a;
+  border-color: #7c6fff;
+  color: #ffffff;
+}
+
+/* Label badge (A / B / C / D) */
+.question-card__option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #2a2a38;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+}
+
+.question-card__option.selected .question-card__option-label,
+.question-card__option[aria-pressed='true'] .question-card__option-label {
+  background-color: #7c6fff;
+  color: #ffffff;
+}
+
+/* Option text */
+.question-card__option-text {
+  flex: 1;
+  line-height: 1.5;
+}
