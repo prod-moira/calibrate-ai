@@ -30,38 +30,38 @@ function useDiscover(): {
     setIsLoading(false);
   };
 
-  const discover = async (
-    quizResult: QuizResult,
-    stabilityPriority: number,
-  ): Promise<void> => {
+  const discover = async (quizResult: QuizResult, stabilityPriority: number): Promise<void> => {
     setIsLoading(true);
     setError(null);
 
-    try {
-      const apiUrl = ((import.meta as any).env?.VITE_API_URL ?? '');
-      const res = await fetch(`${apiUrl}/exposure/discover`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quizResult, stabilityPriority }),
-      });
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const apiUrl = ((import.meta as any).env?.VITE_API_URL ?? '');
+        const res = await fetch(`${apiUrl}/exposure/discover`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quizResult, stabilityPriority }),
+        });
 
-      if (!res.ok) {
-        // HTTP 4xx, 502, or any other non-2xx status
-        setError(ERROR_MESSAGE);
+        if (!res.ok) {
+          if (attempt === 0) continue; // retry once on failure
+          setError(ERROR_MESSAGE);
+          setIsLoading(false);
+          return;
+        }
+
+        const data: DiscoveryResponse = await res.json();
+        setResponse(data);
         setIsLoading(false);
         return;
+      } catch {
+        if (attempt === 0) continue;
+        setError(ERROR_MESSAGE);
+        setIsLoading(false);
       }
-
-      const data: DiscoveryResponse = await res.json();
-      setResponse(data);
-      setIsLoading(false);
-    } catch {
-      // Network failure (fetch threw — no response received)
-      setError(ERROR_MESSAGE);
-      setIsLoading(false);
     }
   };
-
+  
   return { discover, response, isLoading, error, reset };
 }
 
